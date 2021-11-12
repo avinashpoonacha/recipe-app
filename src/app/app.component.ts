@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component,Output } from '@angular/core';
+
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'recipe-app';
+  menuItem:string='recipe';
+
+
+  onMenuItemClick(menuItemSelected:string){
+  this.menuItem = menuItemSelected;
+  }
 }
