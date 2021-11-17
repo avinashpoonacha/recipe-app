@@ -208,9 +208,159 @@ this.service.variable.subscribe(
 for angular 6 + we can add @Injectable({providedIn: 'root'}) 
 then you dont need to set provviders but provided advantage of Lazy loading 
 
+------------------------ 
+
+routing to serve pages based on different URLs 
+
+set in app moudules, 
+import Routes ,@angular/router
+ add a const appRoutes: Routes = [
+{ path:'users', component : UsersComponent }
+];
+ once this path is reached ,hit this component
+
+how will angular about the path ? 
+we need to register it in appmodules 
+import RouterModule
+RouterModule.forRoot(appRoutes) // now it knows the routes 
+
+where does it render? 
+in html , in div ,add the router-outlet 
+<router-outlet></router-outlet> marks where router needs to render 
+
+to navigate :
+naive approach would be toadd anchor and href with the above path but this will
+refresh the path every single time
+instead use routerLink ="['/users']" ( will tell angular to handle the internal routing )
+/ means absolute path ,wthout / it is relative , even use./ or ../ 
+
+how to set the active tab?
+add routerLinkActive="active" on li 
+and add [routerLinkActiveOptions]="{exact:true}"
+this will ensure only add the css class if it is the actualpath 
 
 
+what if uou want redirect from a button 
 
+<button (click)="onLoadServers()"/>
+
+in ts: we need to inject the router 
+
+constructor(provite router:Router){}
+onLoadServers() {
+this.router.navigate(['servers']); 
+}
+// navigate does not knw hte loaded route , routerlink knows
+
+if we want realtive add :
+inject ActivateRoute in constructor
+now it will use relative paths 
+this.router.navigate(['servers'],{relativeTo: this.route});
+
+Passing parameters to Routes :
+{ path:'users/:id/:name', component : UserComponent }
+
+thenin the component ts 
+inject activateRoute
+and on init 
+add this.user={
+id: this.route.snapshot.params['id'] , / this wil be injected route
+name: this.route.snapshot.params['name']
+};
+
+then in html : 
+
+{{ user.id }} {{ user.name }}
+ will be used 
+
+
+if u want to construct a route with added aprams 
+
+<a [routerLink]="['/users','1','anna']"/>
+
+but the above will not render the component as it is on Init ()
+so maybe use
+on init
+add Observables 
+
+ngOnInit() { this.user={
+id: this.route.snapshot.params['id'] , / this wil be injected route
+name: this.route.snapshot.params['name']
+};
+/ params is a observable and import Params 
+this.route.params
+.subscribe(
+(params:Params ) =>  {
+this.user.id=params['id']];
+this.user.name=params['name']];
+}
+);
+}
+
+// angular cleans up subscriptions above when it is destroyed , but subscriptions may remains so
+import Subscription ( observables ) add subscription to above 
+
+ngOnInit() { this.user={
+id: this.route.snapshot.params['id'] , / this wil be injected route
+name: this.route.snapshot.params['name']
+};
+/ params is a observable and import Params
+this.paramSubscription = this.route.params
+.subscribe(
+(params:Params ) =>  {
+this.user.id=params['id']];
+this.user.name=params['name']];
+}
+);
+}  
+
+ngOnDestroy() {
+this.paramSubscription.unsubscribe();
+}
+// dnt have to do this but important if we have custom subscriptions
+
+adding query params : 
+
+import Routes ,@angular/router
+add a const appRoutes: Routes = [
+{ path:'servers/:id/edit', component : AddedServerComponent }
+];
+
+to get host/servers/1/edit?allowEdit=1 
+<a 
+[routerLink]="['servers',5,'edit']"
+ [queryParams]="{allowEdit:'1'}" 
+
+> 
+can do this dyanmically liek 
+[routerLink]="['/servers",user.id,user,name]"
+
+to get host/servers/1/edit?allowEdit=1#loading
+<a
+[routerLink]="['servers',5,'edit']"
+[queryParams]="{allowEdit:'1'}"
+[fragments]="loading"
+>
+>
+
+how to do above on ts file 
+
+onLoadServer(id:number){
+
+this.router.navigate(['/servers',id,'edit'],{queryParams:{allowEdit:'1'},fragments:"loading")
+}
+
+retrieving data from query params: 
+inject ActivatedRoute as before 
+// not reactive to changes 
+console.log(this.route.snapshot.queryParams)
+console.log(this.route.snapshot.fragment)
+ better way is to add observable 
+this.route.queryParams.subscribe();
+his.route.fragment.subscribe();
+
+
+// router inside router 
 
 
 ----------------------------------------
