@@ -158,6 +158,61 @@ constructor(private templateRef: TemplateRef<any>,private vcRef: ViewControllerR
 }
 <div *appUnless></div>
 
+
+------------------------------------
+
+Services : centralize code ( similar to AOP in spring)
+cross cutting concerns - logging , storing user date 
+communniate b/w components 
+
+for Eg: 
+1. create a log service 
+   logging.service.ts 
+export class LoggingService 
+there is no @Service ( just use the class by itself )
+2. method : logstatusstatus (status:String){
+3. console.log();
+4. }
+
+usage : 
+DONT do this to use service : import {Logginservice} in component 
+this is a manual instance which is not needed . 
+
+we need to dependency inject the service instead. 
+
+so add a constructor  to component 
+add a private logginsService:(Type) - > type is the service to inject 
+make sure you import the class 
+then we need to "provide the service to component "
+so add providers under the @Component and added the Service Class name 
+then do 
+this.logginsService.methodname(pass the status ) -- mostly done on onInit() 
+
+hierarchy -> 
+appModule -> app wide 
+app component -> same instance of service will be available for app components but not app component
+any other component -> available for this component only . wil override all others 
+
+-- if we want to use the app component service , 
+remove from providers but leave it on constructor and import 
+
+we can also inject service into service 
+but we need some metadata (@Injectable()) to receiving service 
+
+also can add eventEmitter in service and use it on injected component
+eg : 
+this.service.variable.subscribe(
+(status) => alert(status);
+)
+
+for angular 6 + we can add @Injectable({providedIn: 'root'}) 
+then you dont need to set provviders but provided advantage of Lazy loading 
+
+
+
+
+
+
 ----------------------------------------
 
 recipe-app 
