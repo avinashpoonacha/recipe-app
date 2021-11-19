@@ -362,6 +362,160 @@ his.route.fragment.subscribe();
 
 // router inside router 
 
+import Routes ,@angular/router
+add a const appRoutes: Routes = [
+{ path:'servers/:id/edit', component : AddedServerComponent }
+];
+
+instead of added like this we coudljust add child route like
+{ path:'servers', component : AddedServerComponent , children:[
+{ path:':id', component : ServerComponent }
+{ path:':id/edit', component : EditServerComponent }
+]
+};
+
+router-outlet is for top level route 
+so for childrenroutes 
+we need router-outlet in child html
+
+navigate ; 
+we can add relative p../'[ddath 
+inject router:Router 
+this.router.navigate(['edit'],{ relativeTo : this.route})
+if you want to handle queryparams 
+this.router.navigate(['edit'],{ relativeTo : this.route, queryParamsHandling: 'preserve'});
+
+redirecting : 
+
+ng g c page-not-found
+{ path:'/something', component : PageNotFoundComponent }
+{ path:'notfound', redirectTo :'/something' }
+
+cant define all routes 
+so use ** in path , make sure its the last one , as it parses from top to bottom
+{ path:'**', redirectTo :'/something' }
+
+use pathMatch:'full' to ensure that '' path doesnt lways redirect 
+
+app routing module:
+create a app-routing.module.ts
+all imports here 
+import all routersnroutemodule 
+cadd a const appRoutes: Routes = [
+{ path:'servers/:id/edit', component : AddedServerComponent }
+];
+@NgModule({
+// no need to redecalre 
+imports:[
+RouterModule.forRoot(appRoutes);
+],
+exports: [RouterModule]
+})
+export class AppRoutingModule {
+}
+
+then import own AppRoutingModule in app module
+
+Route Guards : 
+only want to access one route
+canActivate keyword 
+add new file auth-guard.service.ts
+
+export class AuthGuardService implements CanActivate {
+
+canActivate(route:ActivatedRouteSnapshot, state:RouterStateSnapshot):Observable<boolean>|Promise<boolean>|boolean {}
+}
+
+
+differetservice :AuthService
+
+export class AuthService {
+loggedIn=false;
+isAuthenticated(){
+const promise = new Promise(
+(resolve,reject) => {
+setTimeout(() =>{resolve(this.loggedIn);},800);
+);
+}
+
+login(){
+this.loggedIn=true;
+}
+
+logout(){
+this.loggedIn=false;
+}
+}
+
+now use in Authguard 
+
+add injectable 
+add constructor to inject service 
+@Injectable()
+export class AuthGuardService implements CanActivate {
+
+constructor(private authService:AuthService){}
+
+
+canActivate(route:ActivatedRouteSnapshot, state:RouterStateSnapshot):Observable<boolean>|Promise<boolean>|boolean {
+// check if logged inor not 
+
+this.authService.isAuthenticated().then(
+(authenticate:boolean) => {
+if(authenticated) {
+return true;} else {
+this.router.navigate(['/']);
+// optinally add return false; 
+}
+)
+}
+}
+
+
+//no use the guard to all appRoutes const 
+
+add canActivate:[AuthGuard]
+
+we ca see that path will redirect if no auth 
+
+now how can we add it only to child routes :
+adding to each child route is toomuch work 
+
+there is i/f called CanActivateChild similar to above 
+return this.canActivate(route,state);
+
+we can now use a hook on the parent path and add canActivatechild
+
+if they want to do some action while navigatign away from route : 
+
+use a changesstate :boolean 
+true when edit 
+and add navigate up 
+
+add a can-deactivate-guard.service.ts 
+ export interface CanDeactivateComponent{
+canDeactivate:()=> Observable<boolean> |Promise<boolean> | boolean {
+}
+
+export canDeactivateGuard implements canDeactivate<CanDeactivateComponent>{
+canDeactivate(component:CanDeactivateComponent,
+currentRoute:ActivatedRouteSnapshot,
+currentState:RouterStateSnapshot,
+nextState?:RouterStateSnapshot
+
+)// willbe called when we leave a route 
+:Observable<boolean> |Promise<boolean> | boolean {
+return component.canDeactivate();
+}
+finally add it to path in route 
+
+
+Resolver : will run some code before component is rendered 
+it pre loads stuff 
+code in files 
+
+resolve in path {k,v}
+
 
 ----------------------------------------
 
