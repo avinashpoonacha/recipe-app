@@ -1,4 +1,4 @@
-import { Component,EventEmitter,Output } from '@angular/core';
+import { Component} from '@angular/core';
 
 
 @Component({
@@ -8,9 +8,5 @@ import { Component,EventEmitter,Output } from '@angular/core';
 })
 export class HeaderComponent {
 
-@Output('menuItem') menuItem = new EventEmitter<string>();
 
-  onSelected(menuItemSelected:string) {
-  this.menuItem.emit(menuItemSelected);
-  }
 }
